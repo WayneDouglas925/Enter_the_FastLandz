@@ -5,14 +5,13 @@ import { ChallengeSetup } from './components/ChallengeSetup';
 import { TimerDisplay } from './components/TimerDisplay';
 import { CalendarView } from './components/CalendarView';
 import { JournalView } from './components/JournalView';
-import { Skull, Map, BookOpen, Flame } from 'lucide-react';
+import { Skull, Map, BookOpen, Flame, User, Radio } from 'lucide-react';
 
 const App: React.FC = () => {
   // --- STATE ---
   const [view, setView] = useState<ViewState>('CHALLENGE');
   
-  // Persistent State (Simulated with standard useState + useEffect for demo, 
-  // normally would use localStorage here)
+  // Persistent State
   const [progress, setProgress] = useState<UserProgress>(() => {
     const saved = localStorage.getItem('fastlandz_progress');
     return saved ? JSON.parse(saved) : {
@@ -112,7 +111,6 @@ const App: React.FC = () => {
   };
 
   const handleComplete = () => {
-    // Only trigger if active
     if (!fastState.isActive) return;
 
     alert("MISSION ACCOMPLISHED. FEED, SURVIVOR.");
@@ -133,11 +131,10 @@ const App: React.FC = () => {
             ...prev,
             completedDays: [...prev.completedDays, prev.currentDay],
             unlockedDays: Math.max(prev.unlockedDays, nextDay),
-            currentDay: nextDay > 7 ? 7 : nextDay // Cap at 7 for now
+            currentDay: nextDay > 7 ? 7 : nextDay 
         };
     });
     
-    // Prompt to journal
     setView('JOURNAL');
   };
 
@@ -146,77 +143,83 @@ const App: React.FC = () => {
   };
 
   const handleSelectDay = (day: number) => {
-      // Only allow navigating to day if it's the current one for Challenge View
-      // Or just view history. For simplicity, we just update current day context
-      // but logic for locking is handled in render.
       if (progress.completedDays.includes(day)) {
-          // View historical data logic could go here
           alert(`Day ${day} Completed. Review Journal for details.`);
       } else if (day === progress.currentDay) {
           setView('CHALLENGE');
       }
   };
 
-  // Determine current challenge data
   const currentChallenge = CHALLENGES.find(c => c.day === progress.currentDay) || CHALLENGES[0];
   const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
   // --- RENDER ---
   return (
-    <div className="min-h-screen bg-void flex flex-col font-body">
+    <div className="min-h-screen bg-void flex flex-col font-body text-stone-300">
       
-      {/* Header */}
-      <header className="p-4 border-b border-stone-800 flex items-center justify-between bg-stone-950 sticky top-0 z-50">
-        <div className="flex items-center text-rust">
-          <Flame className="w-6 h-6 mr-2 animate-pulse" />
-          <span className="font-display text-xl tracking-widest">FASTLANDZ</span>
+      {/* Header - Mockup Style */}
+      <header className="h-16 px-6 border-b-2 border-rust/20 flex items-center justify-between bg-stone-950/90 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="flex items-center text-rust group cursor-pointer" onClick={() => setView('CHALLENGE')}>
+          <Flame className="w-6 h-6 mr-2 group-hover:animate-pulse transition-all" />
+          <span className="font-display text-xl tracking-[0.2em] uppercase">FASTLANDZ</span>
         </div>
-        <div className="text-stone-500 text-xs font-mono">
+        
+        {/* Desktop Nav Links */}
+        <div className="hidden md:flex items-center space-x-8 text-xs font-bold tracking-widest uppercase text-stone-500">
+            <button onClick={() => setView('CHALLENGE')} className={`hover:text-rust transition-colors ${view === 'CHALLENGE' || view === 'TIMER' ? 'text-rust border-b border-rust' : ''}`}>Current Day</button>
+            <button onClick={() => setView('CALENDAR')} className={`hover:text-rust transition-colors ${view === 'CALENDAR' ? 'text-rust border-b border-rust' : ''}`}>Missions</button>
+            <button onClick={() => setView('JOURNAL')} className={`hover:text-rust transition-colors ${view === 'JOURNAL' ? 'text-rust border-b border-rust' : ''}`}>Journal</button>
+            <button className="hover:text-rust transition-colors cursor-not-allowed opacity-50">Profile</button>
+        </div>
+
+        <div className="text-stone-600 text-xs font-mono bg-stone-900 px-3 py-1 border border-stone-800 rounded-sm">
             DAY {progress.currentDay} / 7
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 overflow-y-auto">
-        {view === 'CHALLENGE' && (
-           <ChallengeSetup 
-              challenge={currentChallenge} 
-              onStartFast={handleStartFast} 
-            />
-        )}
-        
-        {view === 'TIMER' && (
-            <TimerDisplay 
-              fastState={fastState}
-              currentChallenge={currentChallenge}
-              onPauseToggle={handlePauseToggle}
-              onEndEarly={handleEndEarly}
-              onComplete={handleComplete}
-              quote={randomQuote}
-            />
-        )}
+      <main className="flex-1 overflow-y-auto">
+        <div className="w-full max-w-6xl mx-auto p-4 md:p-8">
+            {view === 'CHALLENGE' && (
+            <ChallengeSetup 
+                challenge={currentChallenge} 
+                onStartFast={handleStartFast} 
+                />
+            )}
+            
+            {view === 'TIMER' && (
+                <TimerDisplay 
+                fastState={fastState}
+                currentChallenge={currentChallenge}
+                onPauseToggle={handlePauseToggle}
+                onEndEarly={handleEndEarly}
+                onComplete={handleComplete}
+                quote={randomQuote}
+                />
+            )}
 
-        {view === 'CALENDAR' && (
-            <CalendarView 
-                progress={progress} 
-                challenges={CHALLENGES}
-                onSelectDay={handleSelectDay}
-            />
-        )}
+            {view === 'CALENDAR' && (
+                <CalendarView 
+                    progress={progress} 
+                    challenges={CHALLENGES}
+                    onSelectDay={handleSelectDay}
+                />
+            )}
 
-        {view === 'JOURNAL' && (
-            <JournalView 
-                currentDay={progress.currentDay}
-                progress={progress}
-                onSaveEntry={handleSaveEntry}
-                entries={journalEntries}
-                challenges={CHALLENGES}
-            />
-        )}
+            {view === 'JOURNAL' && (
+                <JournalView 
+                    currentDay={progress.currentDay}
+                    progress={progress}
+                    onSaveEntry={handleSaveEntry}
+                    entries={journalEntries}
+                    challenges={CHALLENGES}
+                />
+            )}
+        </div>
       </main>
 
-      {/* Navigation Footer */}
-      <nav className="border-t border-stone-800 bg-stone-950 p-2 fixed bottom-0 w-full grid grid-cols-4 gap-1 z-50">
+      {/* Mobile Bottom Navigation - Only visible on small screens */}
+      <nav className="md:hidden border-t border-stone-800 bg-stone-950 p-2 fixed bottom-0 w-full grid grid-cols-4 gap-1 z-50">
         <button 
             onClick={() => {
                 if(fastState.isActive) setView('TIMER');
@@ -224,24 +227,31 @@ const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center p-2 rounded transition-colors ${view === 'CHALLENGE' || view === 'TIMER' ? 'text-rust bg-stone-900' : 'text-stone-500'}`}
         >
-            <Skull className="w-6 h-6 mb-1" />
-            <span className="text-[10px] uppercase font-bold tracking-wider">Mission</span>
+            <Skull className="w-5 h-5 mb-1" />
+            <span className="text-[9px] uppercase font-bold tracking-wider">Mission</span>
         </button>
 
         <button 
             onClick={() => setView('CALENDAR')}
             className={`flex flex-col items-center justify-center p-2 rounded transition-colors ${view === 'CALENDAR' ? 'text-dust bg-stone-900' : 'text-stone-500'}`}
         >
-            <Map className="w-6 h-6 mb-1" />
-            <span className="text-[10px] uppercase font-bold tracking-wider">Map</span>
+            <Map className="w-5 h-5 mb-1" />
+            <span className="text-[9px] uppercase font-bold tracking-wider">Map</span>
         </button>
 
         <button 
             onClick={() => setView('JOURNAL')}
             className={`flex flex-col items-center justify-center p-2 rounded transition-colors ${view === 'JOURNAL' ? 'text-stone-200 bg-stone-900' : 'text-stone-500'}`}
         >
-            <BookOpen className="w-6 h-6 mb-1" />
-            <span className="text-[10px] uppercase font-bold tracking-wider">Log</span>
+            <BookOpen className="w-5 h-5 mb-1" />
+            <span className="text-[9px] uppercase font-bold tracking-wider">Log</span>
+        </button>
+
+        <button 
+            className="flex flex-col items-center justify-center p-2 rounded transition-colors text-stone-500 opacity-50"
+        >
+            <User className="w-5 h-5 mb-1" />
+            <span className="text-[9px] uppercase font-bold tracking-wider">ID</span>
         </button>
       </nav>
 
