@@ -5,11 +5,12 @@ import { ChallengeSetup } from './components/ChallengeSetup';
 import { TimerDisplay } from './components/TimerDisplay';
 import { CalendarView } from './components/CalendarView';
 import { JournalView } from './components/JournalView';
-import { Skull, Map, BookOpen, Flame, User, Radio } from 'lucide-react';
+import { LandingPage } from './components/LandingPage';
+import { Skull, Map, BookOpen, Flame, User } from 'lucide-react';
 
 const App: React.FC = () => {
   // --- STATE ---
-  const [view, setView] = useState<ViewState>('CHALLENGE');
+  const [view, setView] = useState<ViewState>('LANDING');
   
   // Persistent State
   const [progress, setProgress] = useState<UserProgress>(() => {
@@ -154,12 +155,17 @@ const App: React.FC = () => {
   const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
   // --- RENDER ---
+  
+  if (view === 'LANDING') {
+      return <LandingPage onEnterApp={() => setView('CHALLENGE')} />;
+  }
+
   return (
     <div className="min-h-screen bg-void flex flex-col font-body text-stone-300">
       
       {/* Header - Mockup Style */}
       <header className="h-16 px-6 border-b-2 border-rust/20 flex items-center justify-between bg-stone-950/90 sticky top-0 z-50 backdrop-blur-sm">
-        <div className="flex items-center text-rust group cursor-pointer" onClick={() => setView('CHALLENGE')}>
+        <div className="flex items-center text-rust group cursor-pointer" onClick={() => setView('LANDING')}>
           <Flame className="w-6 h-6 mr-2 group-hover:animate-pulse transition-all" />
           <span className="font-display text-xl tracking-[0.2em] uppercase">FASTLANDZ</span>
         </div>

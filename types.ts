@@ -1,4 +1,4 @@
-export type ViewState = 'CHALLENGE' | 'TIMER' | 'CALENDAR' | 'JOURNAL';
+export type ViewState = 'LANDING' | 'CHALLENGE' | 'TIMER' | 'CALENDAR' | 'JOURNAL';
 
 export interface ChallengeData {
   day: number;
