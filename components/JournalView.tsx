@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { JournalEntry, ChallengeData, UserProgress } from '../types';
-import { Save, AlertOctagon, Calendar, Eye, Edit2, List } from 'lucide-react';
+import { Save, AlertOctagon, Calendar, Eye, Edit2, List, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 interface JournalViewProps {
@@ -9,13 +9,17 @@ interface JournalViewProps {
   onSaveEntry: (entry: JournalEntry) => void;
   entries: JournalEntry[];
   challenges: ChallengeData[];
+  selectedDay: number | null;
+  onClearSelection: () => void;
 }
 
-export const JournalView: React.FC<JournalViewProps> = ({ 
-  currentDay, 
-  onSaveEntry, 
+export const JournalView: React.FC<JournalViewProps> = ({
+  currentDay,
+  onSaveEntry,
   entries,
-  challenges
+  challenges,
+  selectedDay,
+  onClearSelection
 }) => {
   // Initialize with today's date and current day
   const [formData, setFormData] = useState({
@@ -49,9 +53,37 @@ export const JournalView: React.FC<JournalViewProps> = ({
   };
 
   const todayChallenge = challenges.find(c => c.day === formData.day) || challenges[0];
+  const selectedEntry = selectedDay ? entries.find(e => e.day === selectedDay) : null;
+
+  // Auto-scroll to selected entry when coming from calendar
+  useEffect(() => {
+    if (selectedDay) {
+      const element = document.getElementById(`day-${selectedDay}-entry`);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    }
+  }, [selectedDay]);
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6 pb-24 animate-fade-in">
+      {selectedDay && selectedEntry && (
+        <div className="bg-toxic/10 border-2 border-toxic p-4 rounded flex items-start justify-between">
+          <div className="flex-1">
+            <p className="text-toxic font-bold text-sm uppercase mb-1">Viewing Day {selectedDay} Entry</p>
+            <p className="text-stone-400 text-xs">Scroll down to see the full entry in history</p>
+          </div>
+          <button
+            onClick={onClearSelection}
+            className="text-toxic hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
       <div className="border-l-4 border-rust pl-4 mb-6">
         <h2 className="font-display text-3xl text-white uppercase">Journal</h2>
         <p className="text-stone-400 font-body">Log Your Survival</p>
@@ -208,8 +240,16 @@ export const JournalView: React.FC<JournalViewProps> = ({
         <h3 className="font-display text-xl text-stone-400 mb-4">Past Records</h3>
         <div className="space-y-3">
           {entries.length === 0 && <p className="text-stone-600 italic">No records found in the wasteland.</p>}
-          {entries.slice().reverse().map((entry, idx) => (
-            <div key={idx} className="bg-stone-900 p-4 border-l-2 border-stone-700 hover:border-rust transition-colors group">
+          {entries.slice().reverse().map((entry, idx) => {
+            const isSelected = selectedDay === entry.day;
+            return (
+            <div
+              key={idx}
+              id={isSelected ? `day-${entry.day}-entry` : undefined}
+              className={`bg-stone-900 p-4 border-l-2 transition-colors group ${
+                isSelected ? 'border-toxic bg-toxic/5 ring-2 ring-toxic' : 'border-stone-700 hover:border-rust'
+              }`}
+            >
               <div className="flex justify-between items-center mb-2">
                 <span className="text-rust font-bold uppercase text-sm font-display">Day {entry.day}</span>
                 <span className="text-stone-600 text-xs font-mono">{new Date(entry.date).toLocaleDateString()}</span>
@@ -232,7 +272,8 @@ export const JournalView: React.FC<JournalViewProps> = ({
                   </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

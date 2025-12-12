@@ -26,13 +26,15 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
     if (!fastState.isActive || !fastState.targetEndTime) return;
 
     const interval = setInterval(() => {
-      const now = Date.now();
-      
-      if (fastState.isPaused && fastState.pausedAt) return;
+      // If paused, don't update the timer - keep it frozen
+      if (fastState.isPaused && fastState.pausedAt) {
+        return;
+      }
 
+      const now = Date.now();
       const startTime = fastState.startTime || now;
       const targetTime = fastState.targetEndTime;
-      
+
       const totalDuration = targetTime - startTime;
       const elapsed = now - startTime - fastState.totalPausedTime;
       const remaining = Math.max(0, totalDuration - elapsed);
