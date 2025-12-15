@@ -4,53 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fastlandz</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Chakra+Petch:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              'display': ['"Black Ops One"', 'cursive'],
-              'body': ['"Chakra Petch"', 'sans-serif'],
-            },
-            colors: {
-              'rust': '#c2410c',
-              'dust': '#ca8a04',
-              'void': '#0c0a09',
-              'metal': '#44403c',
-              'blood': '#991b1b',
-              'toxic': '#65a30d',
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      body {
-        background-color: #0c0a09;
-        color: #e7e5e4;
-      }
-      /* Custom Scrollbar for the wasteland feel */
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #1c1917; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #44403c; 
-        border: 1px solid #c2410c;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #c2410c; 
-      }
-      
-      /* Date picker dark mode fix */
-      input[type="date"] {
-        color-scheme: dark;
-      }
-    </style>
   <script type="importmap">
 {
   "imports": {
@@ -65,5 +19,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

@@ -6,9 +6,19 @@ import { TimerDisplay } from './components/TimerDisplay';
 import { CalendarView } from './components/CalendarView';
 import { JournalView } from './components/JournalView';
 import { LandingPage } from './components/LandingPage';
-import { Skull, Map, BookOpen, Flame, User } from 'lucide-react';
+import { AuthModal } from './components/AuthModal';
+import { Onboarding, OnboardingData } from './components/Onboarding';
+import { useAuth } from './contexts/AuthContext';
+import { supabase } from './lib/supabase';
+import { Skull, Map, BookOpen, Flame, User, LogOut } from 'lucide-react';
 
 const App: React.FC = () => {
+  // --- AUTH ---
+  const { user, loading: authLoading, signOut } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
   // --- STATE ---
   const [view, setView] = useState<ViewState>('LANDING');
   
@@ -40,6 +50,35 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('fastlandz_journal');
     return saved ? JSON.parse(saved) : [];
   });
+
+  // --- AUTH CHECK ---
+  useEffect(() => {
+    if (!authLoading && !user && view !== 'LANDING') {
+      setShowAuthModal(true);
+    }
+  }, [authLoading, user, view]);
+
+  // --- CHECK ONBOARDING STATUS ---
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (user && supabase) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile && !profile.onboarding_completed) {
+          setNeedsOnboarding(true);
+          setShowOnboarding(true);
+        } else {
+          setNeedsOnboarding(false);
+        }
+      }
+    };
+    
+    checkOnboarding();
+  }, [user]);
 
   // --- PERSISTENCE ---
   useEffect(() => {
@@ -143,6 +182,30 @@ const App: React.FC = () => {
     setJournalEntries(prev => [...prev, entry]);
   };
 
+  const handleSignOut = async () => {
+    if (window.confirm('Sign out? Your progress is saved to your account.')) {
+      await signOut();
+      setView('LANDING');
+    }
+  };
+
+  const handleOnboardingComplete = async (data: OnboardingData) => {
+    if (user && supabase) {
+      // Save onboarding data to profile
+      await supabase
+        .from('profiles')
+        .update({
+          onboarding_completed: true,
+          onboarding_data: data,
+        })
+        .eq('id', user.id);
+      
+      setShowOnboarding(false);
+      setNeedsOnboarding(false);
+      setView('CHALLENGE');
+    }
+  };
+
   const handleSelectDay = (day: number) => {
       if (progress.completedDays.includes(day)) {
           alert(`Day ${day} Completed. Review Journal for details.`);
@@ -156,8 +219,26 @@ const App: React.FC = () => {
 
   // --- RENDER ---
   
+  // Show onboarding for new users
+  if (showOnboarding && user) {
+    return (
+      <Onboarding
+        username={user.user_metadata?.username || user.email?.split('@')[0] || 'Survivor'}
+        onComplete={handleOnboardingComplete}
+      />
+    );
+  }
+  
   if (view === 'LANDING') {
-      return <LandingPage onEnterApp={() => setView('CHALLENGE')} />;
+      return (
+        <>
+          <LandingPage
+            onEnterApp={() => setView('CHALLENGE')}
+            onShowAuth={() => setShowAuthModal(true)}
+          />
+          <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        </>
+      );
   }
 
   return (
@@ -175,11 +256,26 @@ const App: React.FC = () => {
             <button onClick={() => setView('CHALLENGE')} className={`hover:text-rust transition-colors ${view === 'CHALLENGE' || view === 'TIMER' ? 'text-rust border-b border-rust' : ''}`}>Current Day</button>
             <button onClick={() => setView('CALENDAR')} className={`hover:text-rust transition-colors ${view === 'CALENDAR' ? 'text-rust border-b border-rust' : ''}`}>Missions</button>
             <button onClick={() => setView('JOURNAL')} className={`hover:text-rust transition-colors ${view === 'JOURNAL' ? 'text-rust border-b border-rust' : ''}`}>Journal</button>
-            <button className="hover:text-rust transition-colors cursor-not-allowed opacity-50">Profile</button>
+            {user ? (
+              <button onClick={handleSignOut} className="hover:text-blood transition-colors flex items-center gap-1">
+                <LogOut className="w-3 h-3" />
+                Sign Out
+              </button>
+            ) : (
+              <button onClick={() => setShowAuthModal(true)} className="hover:text-toxic transition-colors">Sign In</button>
+            )}
         </div>
 
-        <div className="text-stone-600 text-xs font-mono bg-stone-900 px-3 py-1 border border-stone-800 rounded-sm">
-            DAY {progress.currentDay} / 7
+        <div className="flex items-center gap-3">
+          {user && (
+            <div className="hidden md:block text-stone-500 text-xs font-mono">
+              <User className="w-3 h-3 inline mr-1" />
+              {user.user_metadata?.username || user.email?.split('@')[0]}
+            </div>
+          )}
+          <div className="text-stone-600 text-xs font-mono bg-stone-900 px-3 py-1 border border-stone-800 rounded-sm">
+              DAY {progress.currentDay} / 7
+          </div>
         </div>
       </header>
 
@@ -254,12 +350,16 @@ const App: React.FC = () => {
         </button>
 
         <button 
-            className="flex flex-col items-center justify-center p-2 rounded transition-colors text-stone-500 opacity-50"
+            onClick={() => user ? handleSignOut() : setShowAuthModal(true)}
+            className={`flex flex-col items-center justify-center p-2 rounded transition-colors ${user ? 'text-rust' : 'text-stone-500'}`}
         >
-            <User className="w-5 h-5 mb-1" />
-            <span className="text-[9px] uppercase font-bold tracking-wider">ID</span>
+            {user ? <LogOut className="w-5 h-5 mb-1" /> : <User className="w-5 h-5 mb-1" />}
+            <span className="text-[9px] uppercase font-bold tracking-wider">{user ? 'Exit' : 'ID'}</span>
         </button>
       </nav>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
     </div>
   );

@@ -1,22 +1,54 @@
 import React, { useState } from 'react';
 import { Flame, ChevronRight, Zap, Shield, Brain, ArrowRight, Mail } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface LandingPageProps {
   onEnterApp: () => void;
+  onShowAuth: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onShowAuth }) => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
     if (email) {
-      setSubmitted(true);
-      // In a real app, send to backend/newsletter service
-      setTimeout(() => {
-          onEnterApp();
-      }, 1500);
+      try {
+        // Save lead to Supabase waitlist
+        if (supabase) {
+          const { error: leadError } = await supabase
+            .from('waitlist_leads')
+            .insert([
+              {
+                email,
+                source: 'landing_page',
+                metadata: {
+                  timestamp: new Date().toISOString(),
+                  user_agent: navigator.userAgent,
+                }
+              }
+            ]);
+          
+          // Ignore duplicate email errors
+          if (leadError && !leadError.message.includes('duplicate')) {
+            console.error('Lead capture error:', leadError);
+          }
+        }
+        
+        setSubmitted(true);
+        
+        // Show auth modal to convert lead to user
+        setTimeout(() => {
+          onShowAuth();
+        }, 1500);
+      } catch (err) {
+        console.error('Failed to capture lead:', err);
+        setError('Something went wrong. Please try again.');
+      }
     }
   };
 
@@ -31,7 +63,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
             <span className="font-display text-2xl tracking-[0.2em] uppercase">FASTLANDZ</span>
           </div>
           <button 
-            onClick={onEnterApp}
+            onClick={onShowAuth}
             className="text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-rust transition-colors border border-stone-800 px-4 py-2 hover:border-rust"
           >
             Member Login
@@ -60,6 +92,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
           {/* Email Capture */}
           <div className="max-w-md mx-auto relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-rust to-orange-600 rounded opacity-25 group-hover:opacity-50 blur transition duration-1000 group-hover:duration-200"></div>
+            {error && (
+              <div className="mb-2 text-red-500 text-sm text-center font-mono">{error}</div>
+            )}
             <form onSubmit={handleEmailSubmit} className="relative bg-stone-900 p-2 border border-stone-800 flex flex-col md:flex-row gap-2">
                 {!submitted ? (
                     <>
@@ -180,14 +215,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
               </p>
               
               <button 
-                onClick={onEnterApp}
+                onClick={onShowAuth}
                 className="bg-rust hover:bg-orange-600 text-white font-display text-xl uppercase tracking-[0.2em] px-10 py-5 shadow-[0_0_30px_rgba(194,65,12,0.2)] hover:shadow-[0_0_50px_rgba(194,65,12,0.4)] transition-all transform hover:-translate-y-1"
               >
                   Start The Challenge
               </button>
               
               <p className="mt-8 text-xs text-stone-600 uppercase tracking-widest">
-                  Try it now. No sign up required for demo.
+                  Join the MVP test group
               </p>
           </div>
       </section>
