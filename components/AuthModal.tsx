@@ -28,15 +28,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     try {
       if (mode === 'signin') {
         await signIn(email, password);
-        onClose();
-        navigate('/app');
+        // Wait for auth state to update before navigating
+        setTimeout(() => {
+          onClose();
+          navigate('/app');
+        }, 500);
       } else {
         if (username.length < 3) {
           throw new Error('Username must be at least 3 characters');
         }
         await signUp(email, password, username);
-        onClose();
-        navigate('/welcome');
+        // Wait for auth state to update before navigating
+        setTimeout(() => {
+          onClose();
+          navigate('/welcome');
+        }, 500);
       }
       // Reset form
       setEmail('');
