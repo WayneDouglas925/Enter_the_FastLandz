@@ -39,7 +39,7 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
           {challenge.title}
         </h2>
         <div className="h-1 w-24 bg-rust mx-auto mb-4"></div>
-        <p className="text-stone-500 text-xs md:text-sm uppercase tracking-widest font-mono">
+        <p className="text-stone-500 text-sm md:text-base uppercase tracking-widest font-mono">
             Survive the night. Your engine needs rest.
         </p>
       </div>
@@ -60,7 +60,7 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
                         <span className="text-[10px] border border-stone-800 px-2 py-1 text-stone-600 font-mono">SECURE</span>
                     </div>
 
-                    <blockquote className="border-l-2 border-rust pl-4 text-stone-400 italic font-body text-sm md:text-base mb-8 max-w-2xl">
+                    <blockquote className="border-l-2 border-rust pl-4 text-stone-400 italic font-body text-base md:text-lg mb-8 max-w-2xl">
                         "{challenge.shortBlurb}"
                     </blockquote>
 
@@ -73,7 +73,7 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
                                 <span className="text-[9px] text-stone-600 uppercase font-bold">Rule 01</span>
                             </div>
                             <h4 className="font-display text-white uppercase text-lg mb-1">{challenge.fastHours}h Block</h4>
-                            <p className="text-xs text-stone-500 leading-relaxed">
+                            <p className="text-sm text-stone-500 leading-relaxed">
                                 {challenge.behavior}
                             </p>
                         </div>
@@ -85,7 +85,7 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
                                 <span className="text-[9px] text-stone-600 uppercase font-bold">Rule 02</span>
                             </div>
                             <h4 className="font-display text-white uppercase text-lg mb-1">Gap Protocol</h4>
-                            <p className="text-xs text-stone-500 leading-relaxed">
+                            <p className="text-sm text-stone-500 leading-relaxed">
                                 Last meal at least 3 hours before sleep mode.
                             </p>
                         </div>
@@ -97,7 +97,7 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
                                 <span className="text-[9px] text-stone-600 uppercase font-bold">Rule 03</span>
                             </div>
                             <h4 className="font-display text-white uppercase text-lg mb-1">Movement</h4>
-                            <p className="text-xs text-stone-500 leading-relaxed">
+                            <p className="text-sm text-stone-500 leading-relaxed">
                                 {challenge.movement}
                             </p>
                         </div>
@@ -118,8 +118,8 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                          <div>
-                             <label className="flex items-center text-stone-500 text-xs font-bold uppercase mb-3 tracking-wider">
-                                 <Clock className="w-3 h-3 mr-2" /> Last Meal Time
+                             <label className="flex items-center text-stone-500 text-sm font-bold uppercase mb-3 tracking-wider">
+                                 <Clock className="w-4 h-4 mr-2" /> Last Meal Time
                              </label>
                              <input 
                                 type="time"
@@ -129,8 +129,8 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
                              />
                          </div>
                          <div>
-                             <label className="flex items-center text-stone-500 text-xs font-bold uppercase mb-3 tracking-wider">
-                                 <Moon className="w-3 h-3 mr-2" /> Sleep (Optional)
+                             <label className="flex items-center text-stone-500 text-sm font-bold uppercase mb-3 tracking-wider">
+                                 <Moon className="w-4 h-4 mr-2" /> Sleep (Optional)
                              </label>
                              <input 
                                 type="time"
@@ -185,16 +185,16 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
                         {challenge.lessonTitle}
                     </h4>
 
-                    <div className="text-stone-400 text-sm leading-relaxed font-body flex-grow overflow-y-auto max-h-60 pr-2 custom-scrollbar">
+                    <div className="text-stone-400 text-base leading-relaxed font-body flex-grow overflow-y-auto max-h-60 pr-2 custom-scrollbar">
                         {challenge.lessonContent}
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-stone-900 flex justify-between items-end">
                          <div>
-                             <p className="text-[10px] text-stone-600 uppercase mb-1">Source</p>
-                             <p className="text-xs text-rust font-bold uppercase">Medical Bay</p>
+                             <p className="text-xs text-stone-600 uppercase mb-1">Source</p>
+                             <p className="text-sm text-rust font-bold uppercase">Medical Bay</p>
                          </div>
-                         <button className="text-[10px] uppercase text-stone-500 hover:text-white border-b border-transparent hover:border-white transition-colors">
+                         <button className="text-xs uppercase text-stone-500 hover:text-white border-b border-transparent hover:border-white transition-colors">
                              Read Full Log
                          </button>
                     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock, Mail, X, Chrome } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,13 +28,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     try {
       if (mode === 'signin') {
         await signIn(email, password);
+        onClose();
+        navigate('/app');
       } else {
         if (username.length < 3) {
           throw new Error('Username must be at least 3 characters');
         }
         await signUp(email, password, username);
+        onClose();
+        navigate('/welcome');
       }
-      onClose();
       // Reset form
       setEmail('');
       setPassword('');

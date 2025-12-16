@@ -83,7 +83,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
            Day {currentChallenge.day}: <span className="text-stone-500">{currentChallenge.title}</span>
          </h1>
          <div className="h-0.5 w-16 bg-stone-800 mx-auto mb-4"></div>
-         <p className="text-stone-500 text-xs uppercase tracking-[0.3em]">
+         <p className="text-stone-500 text-sm uppercase tracking-[0.3em]">
              Survive the hunger. The oasis awaits.
          </p>
       </div>
@@ -124,7 +124,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
 
             {/* Inner Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                 <p className="text-[10px] md:text-xs text-stone-500 uppercase tracking-[0.2em] mb-4">Time Remaining</p>
+                 <p className="text-xs md:text-sm text-stone-500 uppercase tracking-[0.2em] mb-4">Time Remaining</p>
                  
                  <div className="flex items-baseline font-display text-white text-6xl md:text-8xl tracking-widest drop-shadow-2xl">
                      <span className="tabular-nums">{timeObj.h}</span>
@@ -137,7 +137,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
                  {/* Status Pill */}
                  <div className="mt-6 border border-rust/30 bg-rust/10 px-4 py-1.5 rounded-full flex items-center">
                      <span className="w-1.5 h-1.5 bg-rust rounded-full animate-pulse mr-2"></span>
-                     <span className="text-[10px] text-rust uppercase font-bold tracking-widest">Burning Fat</span>
+                     <span className="text-xs text-rust uppercase font-bold tracking-widest">Burning Fat</span>
                  </div>
             </div>
          </div>
@@ -147,10 +147,10 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
       <div className="w-full max-w-2xl bg-stone-900/50 border-l-2 border-rust p-4 mb-10 flex items-start space-x-4">
           <Radio className="w-5 h-5 text-rust mt-1 flex-shrink-0" />
           <div>
-              <p className="text-[10px] text-rust font-bold uppercase mb-1 flex items-center">
+              <p className="text-xs text-rust font-bold uppercase mb-1 flex items-center">
                   Transmission Incoming <span className="w-2 h-2 bg-rust ml-2 animate-pulse rounded-full"></span>
               </p>
-              <p className="text-stone-400 text-sm font-mono leading-relaxed">
+              <p className="text-stone-400 text-base font-mono leading-relaxed">
                   "{quote}"
               </p>
           </div>
@@ -160,41 +160,41 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl mb-12">
           <div className="bg-stone-950 border border-stone-800 p-4">
               <div className="flex items-center text-stone-600 mb-2">
-                  <Play className="w-3 h-3 mr-2" />
-                  <span className="text-[10px] uppercase font-bold tracking-wider">Start Time</span>
+                  <Play className="w-4 h-4 mr-2" />
+                  <span className="text-xs uppercase font-bold tracking-wider">Start Time</span>
               </div>
-              <p className="text-xl font-display text-white">
+              <p className="text-2xl font-display text-white">
                  {fastState.startTime ? new Date(fastState.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}
               </p>
           </div>
 
           <div className="bg-stone-950 border border-stone-800 p-4">
               <div className="flex items-center text-stone-600 mb-2">
-                  <Activity className="w-3 h-3 mr-2" />
-                  <span className="text-[10px] uppercase font-bold tracking-wider">Target End</span>
+                  <Activity className="w-4 h-4 mr-2" />
+                  <span className="text-xs uppercase font-bold tracking-wider">Target End</span>
               </div>
-              <p className="text-xl font-display text-white">
+              <p className="text-2xl font-display text-white">
                  {fastState.targetEndTime ? new Date(fastState.targetEndTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}
               </p>
           </div>
 
           <div className="bg-stone-950 border border-stone-800 p-4">
               <div className="flex items-center text-stone-600 mb-2">
-                  <Zap className="w-3 h-3 mr-2" />
-                  <span className="text-[10px] uppercase font-bold tracking-wider">Fast Type</span>
+                  <Zap className="w-4 h-4 mr-2" />
+                  <span className="text-xs uppercase font-bold tracking-wider">Fast Type</span>
               </div>
-              <p className="text-xl font-display text-white">
+              <p className="text-2xl font-display text-white">
                  Warrior
               </p>
-              <p className="text-[9px] text-stone-500 font-mono">16:8 Protocol</p>
+              <p className="text-xs text-stone-500 font-mono">16:8 Protocol</p>
           </div>
 
            <div className="bg-stone-950 border border-stone-800 p-4">
               <div className="flex items-center text-stone-600 mb-2">
-                  <Activity className="w-3 h-3 mr-2" />
-                  <span className="text-[10px] uppercase font-bold tracking-wider">Status</span>
+                  <Activity className="w-4 h-4 mr-2" />
+                  <span className="text-xs uppercase font-bold tracking-wider">Status</span>
               </div>
-              <p className="text-xl font-display text-rust uppercase">
+              <p className="text-2xl font-display text-rust uppercase">
                  {fastState.isPaused ? "Paused" : "Fasting"}
               </p>
           </div>
@@ -202,19 +202,19 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
 
       {/* Action Buttons */}
       <div className="flex space-x-4">
-          <button 
+          <button
              onClick={onPauseToggle}
-             className="bg-stone-900 hover:bg-stone-800 border border-stone-700 text-white px-8 py-3 flex items-center font-display uppercase tracking-wider text-sm transition-colors"
+             className="bg-stone-900 hover:bg-stone-800 border border-stone-700 text-white px-8 py-3 flex items-center font-display uppercase tracking-wider text-base transition-colors"
           >
-              {fastState.isPaused ? <Play className="w-4 h-4 mr-2" /> : <Pause className="w-4 h-4 mr-2" />}
+              {fastState.isPaused ? <Play className="w-5 h-5 mr-2" /> : <Pause className="w-5 h-5 mr-2" />}
               {fastState.isPaused ? "Resume" : "Pause"}
           </button>
 
-          <button 
+          <button
              onClick={onEndEarly}
-             className="bg-red-900/20 hover:bg-red-900/30 border border-red-900/50 text-red-500 px-8 py-3 flex items-center font-display uppercase tracking-wider text-sm transition-colors"
+             className="bg-red-900/20 hover:bg-red-900/30 border border-red-900/50 text-red-500 px-8 py-3 flex items-center font-display uppercase tracking-wider text-base transition-colors"
           >
-              <AlertTriangle className="w-4 h-4 mr-2" />
+              <AlertTriangle className="w-5 h-5 mr-2" />
               End Early
           </button>
       </div>
