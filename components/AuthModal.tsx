@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Lock, Mail, X, Chrome } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +18,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, signInWithGoogle } = useAuth();
 
+  // Cleanup ref for setTimeout
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +40,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       if (mode === 'signin') {
         await signIn(email, password);
         // Wait for auth state to update before navigating
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           onClose();
           navigate('/app');
         }, 500);
@@ -39,7 +50,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         }
         await signUp(email, password, username);
         // Wait for auth state to update before navigating
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           onClose();
           navigate('/welcome');
         }, 500);

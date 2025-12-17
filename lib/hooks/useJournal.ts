@@ -173,11 +173,8 @@ export const useJournal = () => {
            queueOperation('journal_update', {
              userId: user.id,
              day,
-             updates: updates // Note: queueOperation expects 'updates' but we built 'updateData' above.
-             // Actually, let's pass updateData which matches DB columns
+             updates: updateData
            });
-           // Wait, queueOperation logic for 'journal_update' uses operation.data.updates.
-           // So we should pass { userId: user.id, day, updates: updateData }
         } else {
            // Rollback on error
            fetchJournalEntries();
