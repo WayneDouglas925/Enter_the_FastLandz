@@ -132,22 +132,28 @@ export async function markEasyModeComplete(
   }
 
   try {
-    const { error } = await supabase
-      .from('user_progress')
-      .update({
-        easy_mode_completed_at: new Date().toISOString(),
-        completed_difficulties: ['easy'],
-      })
-      .eq('user_id', userId);
+    // Call server-side function that atomically appends 'easy' to completed_difficulties
+    // and sets easy_mode_completed_at (server time via now()).
+    const { data: rpcData, error: rpcError } = await supabase.rpc('add_completed_difficulty', {
+      p_user_id: userId,
+      p_diff: 'easy',
+    });
 
-    if (error) throw error;
+    if (rpcError) throw rpcError;
 
     return { success: true };
   } catch (error) {
     console.error('Error marking easy mode complete:', error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : error && (error as any).message
+        ? (error as any).message
+        : 'Unknown error';
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: message,
     };
   }
 }

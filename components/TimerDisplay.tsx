@@ -88,13 +88,16 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
   const isDay7 = challengeData.day === 7;
   const timerColor = isDay7 ? 'text-green-500' : 'text-rust';
   const glowColor = isDay7 ? 'shadow-[0_0_30px_rgba(34,197,94,0.3)]' : 'shadow-[0_0_30px_rgba(194,65,12,0.3)]';
+  const borderBase = isDay7 ? 'border-green-800' : 'border-stone-800';
+  // Use explicit hover class strings so Tailwind JIT can detect both
+  const hoverBorder = isDay7 ? 'group-hover:border-green-700' : 'group-hover:border-stone-700';
 
   return (
     <div className="relative">
       {/* Main Timer Circle */}
       <div className={`relative w-64 h-64 mx-auto mb-8 group ${isDay7 ? glowColor : ''}`}>
         {/* Outer glow ring */}
-        <div className={`absolute inset-0 rounded-full border-2 ${isDay7 ? 'border-green-800' : 'border-stone-800'} group-hover:${isDay7 ? 'border-green-700' : 'border-stone-700'} transition-colors`}></div>
+        <div className={`absolute inset-0 rounded-full border-2 ${borderBase} ${hoverBorder} transition-colors`}></div>
 
         {/* Progress ring (svg) */}
         <svg className="absolute inset-0 w-full h-full -rotate-90 transform">

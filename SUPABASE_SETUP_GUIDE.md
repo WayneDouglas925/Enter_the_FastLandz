@@ -89,6 +89,11 @@ The app uses the new helper functions in `lib/dayFeatures.ts`:
 - `markEasyModeComplete(userId)` - Marks Easy Mode as done
 - `isEasyModeComplete(userId)` - Checks if completed
 
+**Server-side helper:**
+- `add_completed_difficulty(p_user_id uuid, p_diff text)` — a Postgres function that atomically appends `p_diff` to `completed_difficulties` (if not present) and sets `easy_mode_completed_at` when `p_diff = 'easy'`.
+- To apply it, run the SQL in `supabase_add_completed_difficulty_fn.sql` via the Supabase SQL Editor.
+- The app calls it via RPC: `await supabase.rpc('add_completed_difficulty', { p_user_id: userId, p_diff: 'easy' })`.
+
 These functions automatically:
 - Create journal entries if they don't exist
 - Update existing entries with new feature data

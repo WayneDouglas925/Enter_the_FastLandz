@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
 import { Skull, Shield, Droplet, Flame, Radio } from 'lucide-react';
+import { saveDayFeatures } from '../../lib/dayFeatures';
+import { useAuth } from '../../contexts/AuthContext';
+import { useProgress } from '../../lib/hooks/useProgress';
 
-export const BossFight: React.FC = () => {
+interface BossFightProps {
+  onCompleteBossFight?: (battleLog: string) => Promise<void> | void;
+}
+
+export const BossFight: React.FC<BossFightProps> = ({ onCompleteBossFight }) => {
   const [battleLog, setBattleLog] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { user } = useAuth();
+  const { progress } = useProgress();
 
   const battleRules = [
     {
@@ -148,8 +160,40 @@ export const BossFight: React.FC = () => {
           />
 
           <div className="mt-4 text-center">
-            <button className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-black font-display text-lg uppercase py-4 px-12 tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.5)] transition-all transform hover:scale-105 active:scale-95">
-              Complete Boss Fight
+            {error && <p className="text-sm text-red-400 mb-3">{error}</p>}
+            <button
+              onClick={async () => {
+                if (loading) return; // prevent double submit
+                setError(null);
+                setLoading(true);
+
+                try {
+                  // If caller passed a custom handler, call it
+                  if (onCompleteBossFight) {
+                    await onCompleteBossFight(battleLog);
+                  } else {
+                    // Default: save the battle log via saveDayFeatures (requires auth + progress)
+                    if (!user || !progress) {
+                      throw new Error('Unable to save: missing user or progress');
+                    }
+
+                    await saveDayFeatures(user.id, progress.currentDay, { battleLog });
+                  }
+
+                  // Success feedback
+                  setBattleLog('');
+                  alert('Boss Fight completed — your battle log was saved.');
+                } catch (err: any) {
+                  console.error('Error completing boss fight:', err);
+                  setError(err?.message || 'Failed to complete boss fight.');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading}
+              className={"bg-gradient-to-r from-green-600 to-green-500 " + (loading ? 'opacity-60 cursor-not-allowed' : 'hover:from-green-500 hover:to-green-400') + " text-black font-display text-lg uppercase py-4 px-12 tracking-widest shadow-[0_0_20px_rgba(34,197,94,0.5)] transition-all transform hover:scale-105 active:scale-95"}
+            >
+              {loading ? 'Completing...' : 'Complete Boss Fight'}
             </button>
           </div>
         </div>

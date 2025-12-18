@@ -10,6 +10,28 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({ targetCups = 8 }) =>
     Array(targetCups).fill(false)
   );
 
+  React.useEffect(() => {
+    setCupsCompleted(prev => {
+      if (prev.length === targetCups) return prev;
+      const newCups = Array(targetCups).fill(false);
+      // Preserve existing completion state up to the new length
+      for (let i = 0; i < Math.min(prev.length, targetCups); i++) {
+        newCups[i] = prev[i];
+      }
+      return newCups;
+    });
+  }, [targetCups]);
+  React.useEffect(() => {
+    setCupsCompleted(prev => {
+      if (prev.length === targetCups) return prev;
+      const newCups = Array(targetCups).fill(false);
+      // Preserve existing completion state up to the new length
+      for (let i = 0; i < Math.min(prev.length, targetCups); i++) {
+        newCups[i] = prev[i];
+      }
+      return newCups;
+    });
+  }, [targetCups]);
   const toggleCup = (index: number) => {
     const newCups = [...cupsCompleted];
     newCups[index] = !newCups[index];
