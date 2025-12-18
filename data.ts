@@ -27,7 +27,7 @@ export const CHALLENGES: ChallengeData[] = [
   },
   {
     day: 3,
-    title: "Dehydration Station",
+    title: "Water Warrior",
     fastHours: 14,
     behavior: "Drink 8 cups of water. Add salt if dizzy.",
     movement: "Walk 2,000 steps",
@@ -39,7 +39,7 @@ export const CHALLENGES: ChallengeData[] = [
   },
   {
     day: 4,
-    title: "The Shift",
+    title: "Snack Assassin",
     fastHours: 16,
     behavior: "No snacking. Zero. Not even 'healthy' snacks.",
     movement: "Walk 3,000 steps",
@@ -51,7 +51,7 @@ export const CHALLENGES: ChallengeData[] = [
   },
   {
     day: 5,
-    title: "Carb Apocalypse",
+    title: "The Carb Reckoning",
     fastHours: 16,
     behavior: "Eat protein/fat before fast. No carbs.",
     movement: "Walk 4,000 steps",
@@ -63,7 +63,7 @@ export const CHALLENGES: ChallengeData[] = [
   },
   {
     day: 6,
-    title: "One Meal Warrior",
+    title: "The 20-Hour Trial",
     fastHours: 20,
     behavior: "One meal only (OMAD). Protein + Fat focused.",
     movement: "Gentle walk (min 2,000 steps)",
@@ -75,7 +75,7 @@ export const CHALLENGES: ChallengeData[] = [
   },
   {
     day: 7,
-    title: "BOSS FIGHT: 24-Hour Siege",
+    title: "BOSS FIGHT",
     fastHours: 24,
     behavior: "Fast through the day and night.",
     movement: "Optional walk/stretch",

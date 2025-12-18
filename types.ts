@@ -11,6 +11,15 @@ export interface ChallengeData {
   lessonContent: string;
   bonusTip: string;
   notesPrompt: string;
+  // Image paths (optional)
+  heroImage?: string;       // Main challenge image
+  timerImage?: string;      // Timer background image
+  iconImage?: string;       // Small icon/badge
+  // Day-specific metadata
+  timerTitle?: string;      // e.g., "The Wasteland Trek"
+  difficulty?: string;       // e.g., "Hard", "Moderate"
+  statusIndicator?: string;  // e.g., "Ketosis", "Deep Ketosis", "Fat Burning"
+  subtitle?: string;         // Additional subtitle text
 }
 
 export interface FastState {
