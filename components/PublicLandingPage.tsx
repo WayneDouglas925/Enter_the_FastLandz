@@ -1,190 +1,324 @@
 import React, { useState } from 'react';
-import { Flame, Mail, Brain, Shield, Zap } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { isValidEmail } from '../utils/validators';
+import { Flame, Calendar, Trophy, Clock, ArrowRight, Loader2, AlertTriangle, X, Chrome, Mail, Lock } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface PublicLandingPageProps {
-  onShowAuth: () => void;
+  onShowAuth?: () => void;
 }
 
 export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({ onShowAuth }) => {
+  const { signInWithGoogle, signIn, error, loading } = useAuth();
+  const navigate = useNavigate();
+  const [showAuthForm, setShowAuthForm] = useState(false);
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (!isValidEmail(email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-
+  const handleGoogleSignIn = async () => {
     try {
-      // Save lead to Supabase waitlist
-      if (supabase) {
-        const { error: leadError } = await supabase
-          .from('waitlist_leads')
-          .insert([
-            {
-              email: email.trim(),
-              source: 'landing_page',
-              metadata: {
-                timestamp: new Date().toISOString(),
-                user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
-              },
-            },
-          ]);
-
-        // Ignore duplicate email errors — supabase error messages vary, check defensively
-        const message = (leadError && (leadError.message || leadError.details || leadError.code)) || '';
-        if (leadError && !/(duplicate|unique)/i.test(String(message))) {
-          console.error('Lead capture error:', leadError);
-          setError('Failed to save your email. Please try again later.');
-          setIsSubmitting(false);
-          return;
-        }
-      }
-
-      setSubmitted(true);
-
-      // Show auth modal to convert lead to user after brief delay
-      setTimeout(() => {
-        onShowAuth();
-      }, 1500);
-    } catch (err) {
-      console.error('Failed to capture lead:', err);
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      setAuthError('');
+      await signInWithGoogle();
+      // After successful sign-in, navigate to the app
+      setTimeout(() => navigate('/app'), 1000);
+    } catch (err: any) {
+      setAuthError(err.message || 'Google sign-in failed');
     }
   };
 
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setAuthError('');
+      await signIn(email, password);
+      // After successful sign-in, navigate to the app
+      setTimeout(() => navigate('/app'), 1000);
+    } catch (err: any) {
+      setAuthError(err.message || 'Sign-in failed');
+    }
+  };
+
+  const handleAuthClick = () => {
+    if (onShowAuth) {
+      onShowAuth();
+    } else {
+      setShowAuthForm(true);
+    }
+  };
+
+  const closeAuthForm = () => {
+    setShowAuthForm(false);
+    setAuthError('');
+    setEmail('');
+    setPassword('');
+  };
+
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-300 font-body overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-stone-950 to-emerald-950/20 text-stone-300 font-body overflow-x-hidden">
       {/* Navigation */}
-      <nav className="border-b border-stone-900 bg-stone-950/90 backdrop-blur fixed w-full z-50">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center text-rust">
-            <Flame className="w-6 h-6 mr-2 animate-pulse" />
-            <span className="font-display text-2xl tracking-[0.2em] uppercase">FASTLANDZ</span>
+      <nav className="border-b border-stone-900/50 bg-stone-950/90 backdrop-blur fixed w-full z-50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center text-emerald-400">
+            <Flame className="w-5 h-5 mr-2" />
+            <span className="font-display text-lg tracking-[0.15em] uppercase">FASTLANDZ</span>
           </div>
           <button
-            onClick={onShowAuth}
-            className="bg-rust text-white font-display uppercase px-4 py-2 rounded"
-            aria-label="Open authentication modal"
+            onClick={handleAuthClick}
+            className="bg-emerald-500 hover:bg-emerald-400 text-black font-display uppercase px-5 py-2 rounded-full text-sm tracking-wider transition-colors"
+            aria-label="Open login modal"
           >
-            Member Login
+            Login
           </button>
         </div>
       </nav>
 
-      {/* Hero & Email Capture */}
-      <section className="py-24 border-b border-stone-900 bg-stone-950">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h1 className="font-display text-5xl md:text-8xl text-white uppercase tracking-tighter mb-6 leading-tight">
-            Stop Eating.<br />
-            <span className="text-rust">Start Living.</span>
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6 relative overflow-hidden">
+        {/* Background gradient effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-transparent to-transparent"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/5 rounded-full blur-3xl"></div>
+         
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          {/* Status Badge */}
+          <div className="inline-flex items-center bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4 py-1.5 mb-8">
+            <span className="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
+            <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Survival Mode Active</span>
+          </div>
+
+          {/* Main Headline */}
+          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-white uppercase tracking-tighter mb-4 leading-[0.9]">
+            ENTER THE
+          </h1>
+          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-emerald-400 uppercase tracking-tighter mb-8 leading-[0.9]">
+            FASTLANDZ
           </h1>
 
-          <p className="max-w-2xl mx-auto text-stone-400 text-lg md:text-xl leading-relaxed mb-10 font-light">
-            Join the waitlist to become an early tester of the 7-Day Intermittent Fasting Challenge.
-            Help shape the future of metabolic health.
+          {/* Tagline */}
+          <p className="text-stone-400 text-lg md:text-xl mb-3">
+            Fast. Track. Transform. <span className="text-emerald-400">(Then eat.)</span>
+          </p>
+          <p className="text-stone-600 text-xs uppercase tracking-[0.3em] font-mono mb-10">
+            // SYSTEM STATUS: HUNGER LEVELS RISING
           </p>
 
-          <div className="max-w-md mx-auto relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-rust to-orange-600 rounded opacity-25 group-hover:opacity-50 blur transition duration-1000 group-hover:duration-200"></div>
-            {error && (
-              <div className="mb-2 text-red-500 text-sm text-center font-mono" role="alert">
-                {error}
-              </div>
-            )}
+          {/* CTA Button */}
+          <button
+            onClick={handleAuthClick}
+            className="bg-emerald-500 hover:bg-emerald-400 text-black font-display uppercase px-8 py-4 rounded-full text-lg tracking-wider transition-all transform hover:scale-105 inline-flex items-center gap-3 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)]"
+          >
+            Start Your Journey
+            <ArrowRight className="w-5 h-5" />
+          </button>
 
-            {submitted && (
-              <div className="mb-4 text-green-400 text-center" role="status" aria-live="polite">
-                Thanks — check your email for updates.
-              </div>
-            )}
-
-            {!submitted && (
-              <form onSubmit={handleEmailSubmit} className="relative bg-stone-900 p-2 border border-stone-800 flex flex-col md:flex-row gap-2">
-                <div className="relative flex-grow">
-                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-stone-600" />
-                  <input
-                    aria-label="Email address"
-                    type="email"
-                    placeholder="Enter your email address"
-                    className="w-full bg-stone-950 text-white px-4 py-3 pl-10 outline-none border border-stone-800 focus:border-stone-600 font-mono text-sm"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="bg-rust hover:bg-orange-600 text-white font-display uppercase tracking-widest px-6 py-3 transition-colors flex items-center justify-center whitespace-nowrap disabled:opacity-50"
-                  disabled={isSubmitting}
-                  aria-label="Join waitlist"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Join Waitlist'}
-                </button>
-              </form>
-            )}
-          </div>
+          <p className="text-stone-600 text-xs mt-6 font-mono">
+            Join 10,000+ survivors in the 7-day intermittent fasting RPG.
+          </p>
         </div>
       </section>
 
-      {/* Why section */}
-      <section className="py-20 border-b border-stone-900 bg-stone-950">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-4xl md:text-5xl text-white uppercase mb-4">What You'll Experience</h2>
-            <div className="h-1 w-20 bg-rust mx-auto mb-6"></div>
-            <p className="text-stone-400 max-w-2xl mx-auto">
-              As an MVP tester, you'll get early access to our 7-day progressive fasting protocol.
+      {/* Wasteland Mechanics Section */}
+      <section className="py-20 px-6 border-t border-stone-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12">
+            <h2 className="font-display text-3xl md:text-4xl text-white uppercase mb-3">Wasteland Mechanics</h2>
+            <p className="text-stone-500 max-w-xl">
+              This isn't just a diet. It's a fight for survival. Equip yourself with the tools to master your metabolic state.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-stone-900/50 border border-stone-800 p-8 hover:border-rust/50 transition-colors group">
-              <Brain className="w-10 h-10 text-stone-600 mb-6 group-hover:text-rust transition-colors" />
-              <h3 className="font-display text-xl text-white uppercase mb-3">Fat Adaptation</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Feature Card 1 - 7 Day Challenge */}
+            <div className="bg-stone-900/30 border border-stone-800/50 rounded-lg p-6 hover:border-emerald-500/30 transition-colors group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-emerald-500/10 p-3 rounded-lg">
+                  <Calendar className="w-6 h-6 text-emerald-400" />
+                </div>
+                <Calendar className="w-8 h-8 text-stone-800 group-hover:text-stone-700 transition-colors" />
+              </div>
+              <h3 className="font-display text-xl text-white uppercase mb-2">7 Day Challenge</h3>
               <p className="text-stone-500 text-sm leading-relaxed">
-                Train your body to access its own energy reserves. Stop being a slave to the snack drawer.
+                A guided survival journey through the metabolic desert. Can you make it to the oasis?
               </p>
             </div>
 
-            <div className="bg-stone-900/50 border border-stone-800 p-8 hover:border-rust/50 transition-colors group">
-              <Flame className="w-10 h-10 text-stone-600 mb-6 group-hover:text-rust transition-colors" />
-              <h3 className="font-display text-xl text-white uppercase mb-3">Mindful Hunger</h3>
+            {/* Feature Card 2 - XP System */}
+            <div className="bg-stone-900/30 border border-stone-800/50 rounded-lg p-6 hover:border-emerald-500/30 transition-colors group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-emerald-500/10 p-3 rounded-lg">
+                  <Trophy className="w-6 h-6 text-emerald-400" />
+                </div>
+                <Trophy className="w-8 h-8 text-stone-800 group-hover:text-stone-700 transition-colors" />
+              </div>
+              <h3 className="font-display text-xl text-white uppercase mb-2">XP System</h3>
               <p className="text-stone-500 text-sm leading-relaxed">
-                Learn to differentiate true hunger from habit or boredom.
+                Level up your health stats. Earn XP for every hour fasted and every healthy meal logged.
               </p>
             </div>
 
-            <div className="bg-stone-900/50 border border-stone-800 p-8 hover:border-rust/50 transition-colors group">
-              <Shield className="w-10 h-10 text-stone-600 mb-6 group-hover:text-rust transition-colors" />
-              <h3 className="font-display text-xl text-white uppercase mb-3">Sustained Energy</h3>
+            {/* Feature Card 3 - Fasting Windows */}
+            <div className="bg-stone-900/30 border border-stone-800/50 rounded-lg p-6 hover:border-emerald-500/30 transition-colors group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-emerald-500/10 p-3 rounded-lg">
+                  <Clock className="w-6 h-6 text-emerald-400" />
+                </div>
+                <Clock className="w-8 h-8 text-stone-800 group-hover:text-stone-700 transition-colors" />
+              </div>
+              <h3 className="font-display text-xl text-white uppercase mb-2">Fasting Windows</h3>
               <p className="text-stone-500 text-sm leading-relaxed">
-                Build routines that keep you focused and energetic throughout the day.
+                Master your hunger. Dynamic timers track your fasting and eating windows with precision.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-stone-900 bg-black py-12 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-stone-600 text-xs font-mono uppercase tracking-widest">
-          <div>© {new Date().getFullYear()} Fastlandz</div>
-          <div className="mt-4 md:mt-0">Built with care</div>
+      {/* Footer */}
+      <footer className="border-t border-stone-900/50 bg-stone-950 py-8 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center text-stone-600 mb-4 md:mb-0">
+            <Flame className="w-4 h-4 mr-2" />
+            <span className="text-xs uppercase tracking-widest">FASTLANDZ RPG</span>
+          </div>
+           
+          <div className="flex items-center gap-8 text-stone-600 text-xs uppercase tracking-wider">
+            <a href="#" className="hover:text-stone-400 transition-colors">Privacy Protocol</a>
+            <a href="#" className="hover:text-stone-400 transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-stone-400 transition-colors">Support</a>
+          </div>
+           
+          <div className="text-stone-700 text-xs mt-4 md:mt-0">
+            © 2024 Fastlandz. All rights reserved.
+          </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      {showAuthForm && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-stone-950 border-2 border-emerald-500 max-w-md w-full relative rounded-lg shadow-[0_0_50px_rgba(16,185,129,0.3)]">
+            <button
+              onClick={closeAuthForm}
+              disabled={loading}
+              className="absolute top-4 right-4 text-stone-500 hover:text-white transition-colors disabled:opacity-50"
+              aria-label="Close auth form"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <h2 className="font-display text-2xl text-emerald-400 uppercase mb-2 tracking-wider">
+                  Enter Fastlandz
+                </h2>
+                <p className="text-stone-500 text-sm uppercase tracking-widest font-mono">
+                  Resume your survival
+                </p>
+              </div>
+
+              {authError && (
+                <div className="bg-red-900/20 border border-red-500 text-red-400 p-3 mb-4 text-sm font-mono rounded">
+                  <span className="font-bold">[ERROR]</span> {authError}
+                </div>
+              )}
+
+              {/* Google Sign-In Button */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full bg-white hover:bg-stone-100 text-black font-display uppercase py-3 tracking-wider mb-4 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? (
+                  <span className="font-mono animate-pulse">INITIALIZING...</span>
+                ) : (
+                  <>
+                    <Chrome className="w-5 h-5 mr-2" />
+                    Sign in with Google
+                  </>
+                )}
+              </button>
+
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-stone-800"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-stone-950 px-2 text-stone-600 font-mono">Or continue with email</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleEmailSignIn} className="space-y-4">
+                <div>
+                  <label className="block text-stone-500 text-xs uppercase mb-2 font-bold tracking-wider">
+                    Wasteland ID (Email)
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3.5 w-5 h-5 text-stone-600" />
+                    <input
+                      type="email"
+                      required
+                      className="w-full bg-stone-900 border border-stone-700 text-white p-3 pl-10 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono transition-colors"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      disabled={loading}
+                      aria-label="Enter your email address"
+                      autoComplete="email"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-stone-500 text-xs uppercase mb-2 font-bold tracking-wider">
+                    Access Code (Password)
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3.5 w-5 h-5 text-stone-600" />
+                    <input
+                      type="password"
+                      required
+                      className="w-full bg-stone-900 border border-stone-700 text-white p-3 pl-10 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono transition-colors"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      minLength={6}
+                      disabled={loading}
+                      aria-label="Enter your password"
+                      autoComplete="current-password"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-display uppercase py-3 tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="animate-pulse font-mono">ACCESSING...</span>
+                    </span>
+                  ) : (
+                    'Access System'
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-6 text-center border-t border-stone-900 pt-6">
+                <button
+                  type="button"
+                  onClick={() => navigate('/welcome')}
+                  disabled={loading}
+                  className="text-stone-500 text-sm hover:text-emerald-400 transition-colors font-mono disabled:opacity-50"
+                >
+                  <span className="text-stone-700">[NEW USER?]</span> Create Account →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

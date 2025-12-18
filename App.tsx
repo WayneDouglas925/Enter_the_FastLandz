@@ -11,7 +11,6 @@ import { ProtectedRoute, MainAppRoute } from './components/routes';
 const App: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const { handleOnboardingComplete } = useOnboarding();
 
   return (
@@ -20,10 +19,7 @@ const App: React.FC = () => {
       <Route
         path="/"
         element={
-          <>
-            <PublicLandingPage onShowAuth={() => setShowAuthModal(true)} />
-            <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-          </>
+          <PublicLandingPage />
         }
       />
 
