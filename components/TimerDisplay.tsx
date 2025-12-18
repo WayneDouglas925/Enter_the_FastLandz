@@ -84,13 +84,18 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
     return null;
   }
 
+  // Determine timer color based on day
+  const isDay7 = challengeData.day === 7;
+  const timerColor = isDay7 ? 'text-green-500' : 'text-rust';
+  const glowColor = isDay7 ? 'shadow-[0_0_30px_rgba(34,197,94,0.3)]' : 'shadow-[0_0_30px_rgba(194,65,12,0.3)]';
+
   return (
     <div className="relative">
       {/* Main Timer Circle */}
-      <div className="relative w-64 h-64 mx-auto mb-8 group">
+      <div className={`relative w-64 h-64 mx-auto mb-8 group ${isDay7 ? glowColor : ''}`}>
         {/* Outer glow ring */}
-        <div className="absolute inset-0 rounded-full border-2 border-stone-800 group-hover:border-stone-700 transition-colors"></div>
-        
+        <div className={`absolute inset-0 rounded-full border-2 ${isDay7 ? 'border-green-800' : 'border-stone-800'} group-hover:${isDay7 ? 'border-green-700' : 'border-stone-700'} transition-colors`}></div>
+
         {/* Progress ring (svg) */}
         <svg className="absolute inset-0 w-full h-full -rotate-90 transform">
           <circle
@@ -100,7 +105,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
             stroke="currentColor"
             strokeWidth="4"
             fill="transparent"
-            className="text-stone-800"
+            className={isDay7 ? "text-green-900" : "text-stone-800"}
           />
           <circle
             cx="128"
@@ -111,21 +116,30 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
             fill="transparent"
             strokeDasharray={2 * Math.PI * 120}
             strokeDashoffset={2 * Math.PI * 120 * (1 - progress / 100)}
-            className={`text-rust transition-all duration-1000 ease-linear ${fastState.isPaused ? 'opacity-50' : 'opacity-100'}`}
+            className={`${timerColor} transition-all duration-1000 ease-linear ${fastState.isPaused ? 'opacity-50' : 'opacity-100'}`}
           />
         </svg>
 
         {/* Center Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <div className="text-stone-500 text-xs font-mono uppercase tracking-widest mb-2">
-            {fastState.isPaused ? 'Paused' : 'Time Remaining'}
+            {challengeData.timerTitle || (fastState.isPaused ? 'Paused' : 'Time Remaining')}
           </div>
           <div className={`font-display text-5xl tabular-nums tracking-tight ${fastState.isPaused ? 'text-stone-500' : 'text-white'}`}>
             {formatTime(remainingMs)}
           </div>
-          <div className="mt-2 text-rust text-sm font-mono">
+          <div className={`mt-2 ${isDay7 ? 'text-green-500' : 'text-rust'} text-sm font-mono`}>
             {Math.round(progress)}% Complete
           </div>
+          {challengeData.statusIndicator && (
+            <div className={`mt-2 text-xs uppercase tracking-wider px-3 py-1 ${
+              isDay7
+                ? 'text-green-400 border border-green-400/30 bg-green-400/10'
+                : 'text-cyan-400 border border-cyan-400/30 bg-cyan-400/10'
+            }`}>
+              {challengeData.statusIndicator}
+            </div>
+          )}
         </div>
       </div>
 

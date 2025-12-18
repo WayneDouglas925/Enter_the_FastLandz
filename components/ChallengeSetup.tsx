@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { ChallengeData } from '../types';
 import { Clock, Moon, AlertOctagon, Flame, Zap, Droplets, ChevronRight } from 'lucide-react';
+import { WaterTracker } from './day-features/WaterTracker';
+import { SnackAssassin } from './day-features/SnackAssassin';
+import { CarbProtocol } from './day-features/CarbProtocol';
+import { TrialStrategy } from './day-features/TrialStrategy';
+import { BossFight } from './day-features/BossFight';
 
 interface ChallengeSetupProps {
   challenge: ChallengeData;
@@ -156,6 +161,13 @@ export const ChallengeSetup: React.FC<ChallengeSetupProps> = ({ challenge, onSta
                     </div>
                 </div>
             </div>
+
+            {/* DAY-SPECIFIC FEATURES */}
+            {challenge.day === 3 && <WaterTracker targetCups={8} />}
+            {challenge.day === 4 && <SnackAssassin />}
+            {challenge.day === 5 && <CarbProtocol />}
+            {challenge.day === 6 && <TrialStrategy />}
+            {challenge.day === 7 && <BossFight />}
 
         </div>
 
