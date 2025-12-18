@@ -13,22 +13,18 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({ targetCups = 8 }) =>
   React.useEffect(() => {
     setCupsCompleted(prev => {
       if (prev.length === targetCups) return prev;
+
       const newCups = Array(targetCups).fill(false);
       // Preserve existing completion state up to the new length
       for (let i = 0; i < Math.min(prev.length, targetCups); i++) {
         newCups[i] = prev[i];
       }
-      return newCups;
-    });
-  }, [targetCups]);
-  React.useEffect(() => {
-    setCupsCompleted(prev => {
-      if (prev.length === targetCups) return prev;
-      const newCups = Array(targetCups).fill(false);
-      // Preserve existing completion state up to the new length
-      for (let i = 0; i < Math.min(prev.length, targetCups); i++) {
-        newCups[i] = prev[i];
+
+      // Only update if something actually changed to avoid extra renders
+      if (newCups.length === prev.length && newCups.every((v, i) => v === prev[i])) {
+        return prev;
       }
+
       return newCups;
     });
   }, [targetCups]);
